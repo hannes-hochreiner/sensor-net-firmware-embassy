@@ -2,8 +2,8 @@ use embassy_traits::i2c::{I2c};
 // use embedded_hal::blocking::i2c::Write;
 use embassy::time::{Duration, Timer};
 
-pub struct SHT4X<I2C> {
-    pub i2c: I2C
+pub struct SHT4X<'a, I2C> {
+    pub i2c: &'a mut I2C
 }
 
 pub enum Sht4xError {
@@ -12,7 +12,7 @@ pub enum Sht4xError {
     TimerError,
 }
 
-impl<I2C> SHT4X<I2C>
+impl<I2C> SHT4X<'_, I2C>
 where
     I2C: I2c,
 {

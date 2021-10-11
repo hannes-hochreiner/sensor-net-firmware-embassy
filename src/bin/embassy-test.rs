@@ -15,46 +15,23 @@ use common::sht4x;
 
 #[embassy::main]
 async fn main(_spawner: Spawner, mut p: Peripherals) {
-    /* Timer */
-    // let mut t = Timer::new_awaitable(p.TIMER0, interrupt::take!(TIMER0));
-    // // default frequency is 1MHz
-    // t.cc(0).write(1_000);
-    /* Timer */
     /* TWIM */
     let mut irq = interrupt::take!(TWIM0_TWIS0_TWI0);
     let mut config = twim::Config::default();
-    // let config = twim::Config {
-    //     frequency: twim::Frequency::K100,
-    //     scl_pullup: true,
-    //     sda_pullup: true,
-    // };
+
     config.sda_pullup = true;
     config.scl_pullup = true;
     config.frequency = twim::Frequency::K400;
+
     let mut twi = Twim::new(&mut p.TWI0, &mut irq, &mut p.P0_22, &mut p.P0_23, config);
-
-    let mut buf = [0u8; 6];
-    let _res = twi.write(0x44, &mut [0x89]);
-    // t.cc(0).short_compare_clear();
-    // t.start();
-    // t.cc(0).wait().await;
-    // t.stop();
-    Timer::after(Duration::from_millis(1)).await;
-    let _res = twi.read(0x44, &mut buf);
-
     let mut sht4 = sht4x::SHT4X {
-        i2c: twi,
+        i2c: &mut twi,
     };
     
-    match sht4.read_serial().await {
-        Ok(val) => {
-            let tmp = 5;
-        },
-        Err(e) => {
-            let tmp = 5;
-        }
-    }
-    // mem::drop(twi);
+    let serial = sht4.read_serial().await.ok().unwrap();
+
+    mem::drop(sht4);
+    mem::drop(twi);
     /* TWIM */
     /* SAADC */
     // let config = Config {
