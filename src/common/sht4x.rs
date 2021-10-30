@@ -14,6 +14,12 @@ pub enum Sht4xError {
     TimerError,
 }
 
+pub enum Precision {
+    High,
+    Medium,
+    Low,
+}
+
 pub struct Measurement {
     pub temperature: f32,
     pub humidity: f32,
@@ -67,14 +73,26 @@ where
         }
     }
 
-    pub async fn get_measurement(&mut self) -> Result<Measurement, Sht4xError> {
+    pub async fn get_measurement(
+        &mut self,
+        precision: &Precision,
+    ) -> Result<Measurement, Sht4xError> {
         let mut buffer = [0u8; 6];
-        let com = [0xFD];
+        let com = [match precision {
+            Precision::High => 0xFD,
+            Precision::Medium => 0xF6,
+            Precision::Low => 0xE0,
+        }];
         self.i2c
             .write(self.address, &com)
             .await
             .map_err(|_| Sht4xError::Ic2Error)?;
-        Timer::after(Duration::from_millis(10)).await;
+        Timer::after(Duration::from_millis(match precision {
+            Precision::High => 9,
+            Precision::Medium => 5,
+            Precision::Low => 2,
+        }))
+        .await;
         self.i2c
             .read(self.address, &mut buffer)
             .await

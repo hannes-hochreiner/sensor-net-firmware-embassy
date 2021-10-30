@@ -52,7 +52,7 @@ async fn main(_spawner: Spawner, mut p: Peripherals) {
     };
 
     let _serial = sht4.read_serial().await.unwrap();
-    let _measurement = sht4.get_measurement().await.unwrap();
+    let _measurement = sht4.get_measurement(&sht4x::Precision::High).await.unwrap();
 
     mem::drop(sht4);
     mem::drop(twi);
