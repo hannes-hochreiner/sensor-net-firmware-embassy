@@ -12,11 +12,11 @@ cortex-m-semihosting = "0.3"
 panic-halt = "0.2"
 embedded-hal = "0.2"
 # cortex-m-rtic = "0.5"
-# nrf52810-pac = "0.10"
+nrf52810-pac = "0.10"
 # nrf52810-hal = { version="0.12", features = ["rt"] }
-embassy = { version = "0.1", path = "/opt/hannes/external_crates/embassy/embassy" }
-embassy-traits = { version = "0.1", path = "/opt/hannes/external_crates/embassy/embassy-traits" }
-embassy-nrf = { version = "0.1", path = "/opt/hannes/external_crates/embassy/embassy-nrf", features = ["nrf52810", "time-driver-rtc1"] }
+embassy = { version = "0.1", path = "/home/hannes/Repository/embassy/embassy" }
+embassy-traits = { version = "0.1", path = "/home/hannes/Repository/embassy/embassy-traits" }
+embassy-nrf = { version = "0.1", path = "/home/hannes/Repository/embassy/embassy-nrf", features = ["nrf52810", "time-driver-rtc1"] }
 # nrf52810-hal = { path = "/opt/hannes/nrf-hal/nrf52810-hal", features = ["rt"] }
 #futures = { version = "0.3", default-features = false }
 #alloc-no-stdlib = "2"
