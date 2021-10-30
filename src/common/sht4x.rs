@@ -10,7 +10,7 @@ pub struct SHT4X<'a, I2C> {
 pub enum Sht4xError {
     IdError,
     CrcError,
-    Ic2Error,
+    I2cError,
     TimerError,
 }
 
@@ -57,12 +57,12 @@ where
         self.i2c
             .write(self.address, &com)
             .await
-            .map_err(|_| Sht4xError::Ic2Error)?;
+            .map_err(|_| Sht4xError::I2cError)?;
         Timer::after(Duration::from_millis(1)).await;
         self.i2c
             .read(self.address, &mut buffer)
             .await
-            .map_err(|_| Sht4xError::Ic2Error)?;
+            .map_err(|_| Sht4xError::I2cError)?;
 
         if buffer[2] != self.crc8(&buffer[0..2]) || buffer[5] != self.crc8(&buffer[3..5]) {
             Err(Sht4xError::CrcError)
@@ -86,7 +86,7 @@ where
         self.i2c
             .write(self.address, &com)
             .await
-            .map_err(|_| Sht4xError::Ic2Error)?;
+            .map_err(|_| Sht4xError::I2cError)?;
         Timer::after(Duration::from_millis(match precision {
             Precision::High => 9,
             Precision::Medium => 5,
@@ -96,7 +96,7 @@ where
         self.i2c
             .read(self.address, &mut buffer)
             .await
-            .map_err(|_| Sht4xError::Ic2Error)?;
+            .map_err(|_| Sht4xError::I2cError)?;
 
         if buffer[2] != self.crc8(&buffer[0..2]) || buffer[5] != self.crc8(&buffer[3..5]) {
             Err(Sht4xError::CrcError)
