@@ -46,9 +46,13 @@ async fn main(_spawner: Spawner, mut p: Peripherals) {
     config.frequency = twim::Frequency::K400;
 
     let mut twi = Twim::new(&mut p.TWI0, &mut irq, &mut p.P0_22, &mut p.P0_23, config);
-    let mut sht4 = sht4x::SHT4X { i2c: &mut twi };
+    let mut sht4 = sht4x::SHT4X {
+        i2c: &mut twi,
+        address: 0x44,
+    };
 
-    let _serial = sht4.read_serial().await.ok().unwrap();
+    let _serial = sht4.read_serial().await.unwrap();
+    let _measurement = sht4.get_measurement().await.unwrap();
 
     mem::drop(sht4);
     mem::drop(twi);
