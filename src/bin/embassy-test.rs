@@ -11,7 +11,6 @@ use core::mem;
 use common::sht4x;
 use embassy::time::{Duration, Timer};
 use embassy::util::Forever;
-use embassy_nrf::clock::{self, HfClkSource};
 use embassy_nrf::radio::{self, Radio};
 use embassy_nrf::twim::{self, Twim};
 use embassy_nrf::{
