@@ -3,39 +3,41 @@
 #![feature(type_alias_impl_trait)]
 
 // use defmt::panic;
-use embassy::executor::Spawner;
+// use embassy::executor::Spawner;
 use panic_halt as _;
 // use embassy_nrf::timer::{Timer};
 use core::mem;
 // use embassy_nrf::saadc::{Config, OneShot, Sample};
 use common::sht4x;
 use embassy::time::{Duration, Timer};
+use embassy::util::Forever;
 use embassy_nrf::clock::{self, HfClkSource};
 use embassy_nrf::radio::{self, Radio};
 use embassy_nrf::twim::{self, Twim};
-use embassy_nrf::{interrupt, Peripherals};
+use embassy_nrf::{
+    config::{Config, HfclkSource, LfclkSource},
+    interrupt, Peripherals,
+};
 
-#[embassy::main]
-async fn main(_spawner: Spawner, mut p: Peripherals) {
-    /* CLOCK */
-    let mut clock_irq = interrupt::take!(POWER_CLOCK);
-    let mut hf_clock_config = clock::HfClockConfig::default();
+static EXECUTOR: Forever<embassy::executor::Executor> = Forever::new();
 
-    hf_clock_config.source = HfClkSource::Xtal;
+#[cortex_m_rt::entry]
+fn main() -> ! {
+    let executor = EXECUTOR.put(embassy::executor::Executor::new());
+    let mut embassy_config = Config::default();
 
-    let mut clock = clock::Clock::new(&mut p.CLOCK, &mut clock_irq);
+    embassy_config.hfclk_source = HfclkSource::ExternalXtal;
+    embassy_config.lfclk_source = LfclkSource::ExternalXtal;
 
-    clock.set_hf_clock_config(&hf_clock_config).await.unwrap();
+    let p = embassy_nrf::init(embassy_config);
 
-    let mut lf_clock_config = clock::LfClockConfig::default();
+    executor.run(|spawner| {
+        spawner.spawn(main(p)).unwrap();
+    })
+}
 
-    lf_clock_config.running = true;
-    lf_clock_config.source = clock::LfClkSource::Xtal;
-    lf_clock_config.external = false;
-    lf_clock_config.bypass = false;
-
-    clock.set_lf_clock_config(&lf_clock_config).await.unwrap();
-    /* CLOCK */
+#[embassy::task]
+async fn main(mut p: Peripherals) {
     /* IRQs */
     let mut twim_irq = interrupt::take!(TWIM0_TWIS0_TWI0);
     let mut radio_irq = interrupt::take!(RADIO);
